@@ -1,0 +1,63 @@
+#include <iostream>
+#include <vector>
+#include <chrono>
+#include <algorithm>
+#include <random>
+
+// Функция сортировки слиянием
+std::vector<int> mergeSort(const std::vector<int>& array)
+{
+    if (array.size() <= 1)
+    {
+        return array;
+    }
+
+    std::vector<int>::const_iterator middle = array.begin() + array.size() / 2;
+    std::vector<int> left(array.begin(), middle);
+    std::vector<int> right(middle, array.end());
+
+    left = mergeSort(left);
+    right = mergeSort(right);
+
+    std::vector<int> sortedArray;
+    std::merge(left.begin(), left.end(), right.begin(), right.end(), std::back_inserter(sortedArray));
+
+    return sortedArray;
+}
+
+int main()
+{
+    std::random_device rd;
+    std::mt19937 generator(rd());
+
+    // Генерация массива из 100 миллионов случайных чисел
+    int arr_size = 100000000;
+    std::vector<int> array(arr_size);
+    std::uniform_int_distribution<int> distribution(0, 500000);
+
+    for (int i = 0; i < arr_size; ++i)
+    {
+        array[i] = distribution(generator);
+    }
+
+    // Сортировка массива и измерение времени выполнения
+    auto start = std::chrono::high_resolution_clock::now();
+    array = mergeSort(array);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+
+    std::cout << "Сортировка выполнена за " << elapsed_seconds.count() << " секунд." << std::endl;
+
+    // Проверка отсортированности массива
+    bool isSorted = std::is_sorted(array.begin(), array.end());
+    if (isSorted)
+    {
+        std::cout << "Массив успешно отсортирован." << std::endl;
+    }
+    else
+    {
+        std::cout << "Внимание: Массив не отсортирован." << std::endl;
+    }
+
+    return 0;
+}
